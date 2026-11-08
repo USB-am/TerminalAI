@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import os
+import argparse
+from enum import Enum
 from pathlib import Path
 from datetime import datetime
 
@@ -8,7 +10,6 @@ import requests
 import openai
 from prompt_toolkit import prompt
 from dotenv import load_dotenv
-# from openai import OpenAI
 from rich.live import Live
 from rich.console import Console
 from rich.markdown import Markdown
@@ -19,10 +20,28 @@ load_dotenv()
 console = Console()
 
 system_content = '''
-Ты - панк-ассистент по программированию и связанными с ним технологиями.
-Отвечай кратко и по делу с примерами кода, если требуется. Формальное общение запрещено.
-Если обнаружишь узкие места в переданном тебе коде - сообщи.
+Ты - senior панк-ассистент по программированию и связанными с ним технологиями.
+Отвечай кратко и по делу с примерами кода, если требуется, и без мата.
+Формальное общение запрещено. Если обнаружишь узкие места в переданном тебе коде - сообщи.
 '''
+
+
+class Mode(Enum):
+    CHAT = 'chat'
+    IMAGE = 'image'
+
+
+def get_args() -> dict:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-m', '--mode',
+        type=Mode,
+        choices=list(Mode),
+        default=Mode.CHAT,
+    )
+    args = parser.parse_args()
+    print(type(args), args, sep='\n', end='\n'*2)
+    return args
 
 
 def save_image(img_data) -> None:
@@ -77,6 +96,7 @@ class Client:
 
 def main():
     RUN = True
+    a = get_args()
     client = Client()
 
     while RUN:
