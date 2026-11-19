@@ -1,0 +1,21 @@
+READ_ONLY_FLAGS = {
+    "python3": {"--version", "-c", "-m", "--help"},
+    "python": {"--version", "-c", "-m", "--help"},
+    "pip3": {"--version", "list", "show", "freeze", "--help"},
+    "pip": {"--version", "list", "show", "freeze", "--help"},
+    "docker": {"--version", "ps", "images", "info", "inspect", "--help"},
+    "git": {
+        "--version",
+        "status",
+        "log",
+        "diff",
+        "show",
+        "branch",
+        "remote",
+        "rev-parse",
+        "ls-files",
+        "--help",
+    },
+    "npm": {"--version", "list", "view", "search", "--help"},
+    "rm": {"-f", "-r", "-rf", "-fr", "--help"},
+}
