@@ -31,10 +31,10 @@ pip install -r requirements.txt
 
 ## Настройка
 
-Скопируй `.env.example` в `.env` и заполни:
+Скопируй `src/.env.example` в `src/.env` и заполни:
 
 ```bash
-cp .env.example .env
+cp src/.env.example src/.env
 ```
 
 Обязательные переменные:
@@ -49,7 +49,7 @@ cp .env.example .env
 ## Запуск
 
 ```bash
-python main.py
+python src/main.py
 ```
 
 Ввод — multiline: нажми `Esc`, потом `Enter` для отправки.  
@@ -60,10 +60,10 @@ python main.py
 
 Встроенная система ограничений:
 
-- **`allowed_commands.py`** — белый список разрешённых команд
-- **`denied_substrings.py`** — запрещённые паттерны (sudo, rm -rf /, ssh и т.д.)
-- **`git_readonly_subcommands.py`** — git только на чтение (status, log, diff...)
-- **`read_only_flags.py`** — для некоторых команд разрешены только определённые флаги
+- **`src/assistant/allowed_commands.py`** — белый список разрешённых команд
+- **`src/assistant/denied_substrings.py`** — запрещённые паттерны (sudo, rm -rf /, ssh и т.д.)
+- **`src/assistant/git_readonly_subcommands.py`** — git только на чтение (status, log, diff...)
+- **`src/assistant/read_only_flags.py`** — для некоторых команд разрешены только определённые флаги
 
 Редактируй эти файлы под себя, если нужно расширить/сузить доступ.
 
@@ -72,16 +72,21 @@ python main.py
 
 ```
 .
-├── main.py                  # Точка входа
-├── assistant/               # Логика ассистента
-│   ├── __init__.py          # Assistant class, тулзы, безопасность
-│   ├── tools/__init__.py    # Описание tools для OpenAI API
-│   ├── allowed_commands.py  # Белый список команд
-│   ├── denied_substrings.py # Запрещённые подстроки
-│   ├── git_readonly_subcommands.py
-│   └── read_only_flags.py   # Ограничения флагов
-├── .env                     # Конфиг (не в git)
-├── .env.example             # Пример конфига
+├── src/
+│   ├── main.py                  # Точка входа
+│   ├── assistant/
+│   │   ├── __init__.py          # Assistant class, тулзы, безопасность
+│   │   ├── tools/
+│   │   │   ├── __init__.py
+│   │   │   └── tools.py         # Описание tools для OpenAI API
+│   │   ├── allowed_commands.py  # Белый список команд
+│   │   ├── denied_substrings.py # Запрещённые подстроки
+│   │   ├── git_readonly_subcommands.py
+│   │   └── read_only_flags.py   # Ограничения флагов
+│   ├── .env.example             # Пример конфига
+│   └── .env                     # Конфиг (не в git)
+├── .gitignore
+├── requirements.txt
 └── README.md
 ```
 
