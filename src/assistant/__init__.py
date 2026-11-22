@@ -5,6 +5,12 @@ import subprocess
 from typing import Any
 
 import openai
+from tenacity import (
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
 
 from .allowed_commands import ALLOWED_COMMANDS
 from .denied_substrings import DENIED_SUBSTRINGS
@@ -155,6 +161,29 @@ class Assistant:
             {"role": "system", "content": os.getenv("SYSTEM_CONTENT")},
         ]
 
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=30),
+        retry=retry_if_exception_type(
+            (
+                openai.APIError,
+                openai.APITimeoutError,
+                openai.APIConnectionError,
+                openai.RateLimitError,
+                openai.InternalServerError,
+            )
+        ),
+        reraise=True,
+        # before_sleep=before_sleep_log(logger, logging.WARNING),
+    )
+    def _create_completions(self) -> Any:
+        return self.__client.chat.completions.create(
+            model=os.getenv("MODEL"),
+            messages=self._messages,
+            tools=TOOLS,
+            tool_choice="auto",
+        )
+
     def handle_tool_call(self, tool_call):
         func_name = tool_call.function.name
         args = json.loads(tool_call.function.arguments)
@@ -171,14 +200,7 @@ class Assistant:
     def chat(self, message: str) -> Any:
         self._messages.append({"role": "user", "content": message})
 
-        # Use tenacity lib for handle this string
-        response = self.__client.chat.completions.create(
-            model=os.getenv("MODEL"),
-            messages=self._messages,
-            tools=TOOLS,
-            tool_choice="auto",
-        )
-
+        response = self._create_completions()
         msg = response.choices[0].message
 
         while msg.tool_calls:
@@ -190,12 +212,7 @@ class Assistant:
                     {"role": "tool", "tool_call_id": tool_call.id, "content": result}
                 )
 
-            response = self.__client.chat.completions.create(
-                model=os.getenv("MODEL"),
-                messages=self._messages,
-                tools=TOOLS,
-                tool_choice="auto",
-            )
+            response = self._create_completions()
             msg = response.choices[0].message
 
         self._messages.append(msg)
