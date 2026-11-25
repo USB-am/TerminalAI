@@ -29,6 +29,9 @@ def main():
         accumulated_text = ""
 
         with Live(console=console, refresh_per_second=10) as live:
+            if assistant_response is None:
+                live.update(Markdown(accumulated_text))
+                continue
             for chunk in assistant_response:
                 if chunk:
                     accumulated_text += chunk
